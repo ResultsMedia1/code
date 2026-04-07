@@ -7,7 +7,10 @@
       "name": "Run Workflow",
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
-      "position": [208, 208]
+      "position": [
+        208,
+        208
+      ]
     },
     {
       "parameters": {
@@ -27,7 +30,10 @@
       "name": "Read Prospects",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
-      "position": [432, 208],
+      "position": [
+        432,
+        208
+      ],
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "f685q4Z93vFUZ3rl",
@@ -41,7 +47,10 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [640, 208],
+      "position": [
+        640,
+        208
+      ],
       "id": "268f734d-16cc-409e-bd73-efee389b791e",
       "name": "Filter New Prospects",
       "alwaysOutputData": true
@@ -53,7 +62,10 @@
       "name": "Loop Over Items",
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 3,
-      "position": [752, 208],
+      "position": [
+        752,
+        208
+      ],
       "id": "dddbd12f-3ea0-44ef-b67c-831563ca58d4"
     },
     {
@@ -63,7 +75,10 @@
       "name": "Store Prospect",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [864, 208],
+      "position": [
+        864,
+        208
+      ],
       "id": "e93698ae-1c82-4943-8730-b6a22331e240"
     },
     {
@@ -87,28 +102,37 @@
       "name": "Scrape Website",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1072, 208],
+      "position": [
+        1072,
+        208
+      ],
       "onError": "continueRegularOutput"
     },
     {
       "parameters": {
-        "jsCode": "const staticData = $getWorkflowStaticData(\"global\");\nconst prospect = JSON.parse(staticData.currentProspect);\nconst scrapeItem = $input.all()[0];\nconst html = String(scrapeItem.json.data || scrapeItem.json.body || \"\");\nconst emailRegex = /[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}/g;\nconst emailMatches = html.match(emailRegex) || [];\nconst uniqueEmails = [...new Set(emailMatches)];\nlet text = html.replace(/<script[^>]*>[\\s\\S]*?<\\/script>/gi, \"\").replace(/<style[^>]*>[\\s\\S]*?<\\/style>/gi, \"\").replace(/<[^>]+>/g, \" \").replace(/&nbsp;/g, \" \").replace(/&amp;/g, \"&\").replace(/&lt;/g, \"<\").replace(/&gt;/g, \">\").replace(/&#\\d+;/g, \" \").replace(/\\s+/g, \" \").trim();\nif (text.length > 12000) { text = text.substring(0, 12000) + \"...[truncated]\"; }\nif (uniqueEmails.length > 0) { text += \" EMAIL ADDRESSES FOUND ON WEBSITE: \" + uniqueEmails.join(\", \"); }\ntext = text.replace(/[\\x00-\\x1F\\x7F]/g, ' ').replace(/\\s+/g, ' ').trim();\ntext = JSON.stringify(text).slice(1, -1);\nconst esc = (v) => v ? JSON.stringify(String(v)).slice(1, -1) : \"\";\nreturn [{ json: {\n  Template: esc(prospect.Template),\n  company_name: esc(prospect[\"Company Name\"]),\n  first_name: esc(prospect[\"First Name\"]),\n  contact_email: esc(prospect.Email),\n  website_text: text,\n  scrape_success: text.length > 100\n} }];"
+        "jsCode": "const staticData = $getWorkflowStaticData(\"global\");\nconst prospect = JSON.parse(staticData.currentProspect);\nconst scrapeItem = $input.all()[0];\nconst html = String(scrapeItem.json.data || scrapeItem.json.body || \"\");\nconst emailRegex = /[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}/g;\nconst emailMatches = html.match(emailRegex) || [];\nconst uniqueEmails = [...new Set(emailMatches)];\nlet text = html.replace(/<script[^>]*>[\\s\\S]*?<\\/script>/gi, \"\").replace(/<style[^>]*>[\\s\\S]*?<\\/style>/gi, \"\").replace(/<[^>]+>/g, \" \").replace(/&nbsp;/g, \" \").replace(/&amp;/g, \"&\").replace(/&lt;/g, \"<\").replace(/&gt;/g, \">\").replace(/&#\\d+;/g, \" \").replace(/\\s+/g, \" \").trim();\nif (text.length > 12000) { text = text.substring(0, 12000) + \"...[truncated]\"; }\nif (uniqueEmails.length > 0) { text += \" EMAIL ADDRESSES FOUND ON WEBSITE: \" + uniqueEmails.join(\", \"); }\ntext = text.replace(/[\\x00-\\x1F\\x7F]/g, ' ').replace(/\\s+/g, ' ').trim();\nreturn [{ json: {\n  Template: prospect.Template || \"\",\n  company_name: prospect[\"Company Name\"] || \"\",\n  first_name: prospect[\"First Name\"] || \"\",\n  contact_email: prospect.Email || \"\",\n  website_text: text,\n  scrape_success: text.length > 100\n} }];"
       },
       "id": "7eac9a42-f65c-4c01-82e5-539ddae39e78",
       "name": "Clean Website Text",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1312, 208]
+      "position": [
+        1312,
+        208
+      ]
     },
     {
       "parameters": {
-        "jsCode": "// Wait 15 seconds between each prospect to avoid Claude API rate limits\nawait new Promise(resolve => setTimeout(resolve, 15000));\nreturn $input.all();"
+        "jsCode": "// Wait 15 seconds between each prospect to avoid Claude API rate limits\nawait new Promise(resolve => setTimeout(resolve, 15000));\n\nconst systemPrompt = `You are writing cold emails for Results Media, a digital marketing agency in Melbourne, Australia run by Dean Gravina. You are NOT an AI writing outreach. You are writing as Dean, a real person who genuinely studied this business before reaching out.\n\nYour emails must feel like they were written by a human who spent 20 minutes on their website. Not a template with merge fields swapped in.\n\nVOICE RULES:\n- Australian English only (organise, colour, favour)\n- Short sentences. Direct. Specific. No filler\n- No corporate buzzwords: leverage, streamline, elevate, world-class, passionate, cutting-edge, innovative, solutions\n- Use contractions (you're, we're, don't, can't, it's)\n- Write like you're texting a business owner, not writing a brochure\n- No em dashes. Use commas, colons, full stops instead\n- Never use 'Dear'. Use Hey, Hi, or just their name\n- Never start with 'I hope this email finds you well' or 'Just reaching out'\n\nRESEARCH INSTRUCTIONS (do this BEFORE writing anything):\nExtract these details from the website content:\n1. What exactly do they sell or do? Be hyper-specific\n2. Who is their target customer? (B2B, B2C, local, national?)\n3. Find SPECIFIC details: named team members, specific projects, client testimonials, product names, suburbs they serve, awards, blog post titles, service package names\n4. What marketing are they doing? (blog activity, social links, Google Ads, landing pages, lead magnets)\n5. What marketing gaps exist? (no blog? outdated content? no reviews visible? weak CTAs? no lead capture? thin service pages? no case studies?)\n6. Find their phone number if visible\n7. Find team member names if visible\n8. Find email addresses. IMPORTANT: Check the EMAIL ADDRESSES FOUND ON WEBSITE section at the end of the content\n\nEMAIL FRAMEWORK (Understanding + Belief + Ask):\n\nThis framework is based on three principles: create a pattern interrupt so they actually read it, demonstrate credibility through accurate assumptions about their business, and make a single clear ask.\n\n1. SUBJECT LINE (pattern interrupt):\n- Must create curiosity or reference something specific to them\n- Should connect directly to the first line of the email\n- Under 6 words. Personal. Not salesy\n- Good: 'Noticed this on your site', '[Name], quick thought', 'Your [specific page] page'\n- NEVER use: Quick question, Partnership opportunity, SEO for X, their business name, anything that screams mass email\n\n2. OPENER (1-2 lines, pattern interrupt continued):\n- Reference something SPECIFIC from their website. Not 'I noticed you do great work'\n- A specific project, a named team member, a particular service, a blog post, a client they mentioned, a detail from their About page\n- This proves the email is 1-to-1, not automated. That is the entire point\n\n3. UNDERSTANDING (2-3 lines, the 'I understand' part):\n- Make an intelligent ASSUMPTION about their business challenge. Not an observation\n- Bad: 'I noticed your website could use some work' (observation, generic)\n- Good: 'My guess is most of your leads come through word of mouth and referrals, and your website probably isn't pulling its weight compared to what you're spending on it' (assumption, specific, shows understanding)\n- Frame it as 'My assumption is...' or 'I'd guess that...' or 'It looks like...'\n- This is where you demonstrate you understand their world. Their context. What it's actually like to run their type of business\n- Connect the assumption to a real marketing gap you found on their site\n\n4. BELIEF (1-2 lines, keep it SHORT):\n- Brief statement of how Results Media solves this exact problem\n- Do NOT over-explain. Leave room for curiosity\n- Reference a specific result if possible: 'We helped a [similar business type] in [area] increase their leads by X' or 'Confident we can fix this based on what we've done for similar businesses'\n- Keep it to one or two sentences max. Do not list services\n\n5. ASK (1 line, single and simple):\n- One ask. Clear. Simple. Low commitment\n- 'Happy to share what I'd do differently. Worth a 5-minute chat?'\n- 'Let me know if you want me to send through what I'd change'\n- Do NOT ask for a 30-minute call. Do NOT send a Calendly link. Do NOT ask multiple questions\n- Be chill. Not desperate\n\n6. SIGN OFF:\nCheers,\nDean Gravina\nResults Media\n\nCRITICAL RULES:\n- Under 120 words for the email body. Every sentence earns its place\n- The email should feel like it could only have been sent to THIS business. If you swapped the business name and it still made sense, it's too generic. Start over\n- Never mention 'AI' or that research was done by a tool\n- No bullet points or lists in the email body. Write in natural sentences\n- The goal is a reply, not a sale. You're starting a conversation\n\nFollow-up 1 (sent Day 3): 2-3 sentences. Reference the first email. Add a NEW angle, a new specific observation, or a quick stat. Don't just say 'following up'. Provide new value or a new assumption\nFollow-up 2 (sent Day 7): 1-2 sentences. Very human. Light. 'No stress if the timing's off. Thought it was worth a shot based on what I saw on your site'`;\n\nconst results = [];\nfor (const item of $input.all()) {\n  const j = item.json;\n  const userContent = `Research this prospect's website and write a cold email using the Understanding + Belief framework.\n\nPROSPECT DETAILS:\n- Business: ${j.company_name || ''}\n- Website URL: ${j.Template || ''}\n- Contact Name: ${j.first_name || 'Not provided - find on website if possible'}\n- Contact Email: ${j.contact_email || 'Not provided'}\n- Phone: ${j.phone || 'Not provided - find on website if possible'}\n- Industry: ${j.industry || 'Unknown - determine from website'}\n\nWEBSITE CONTENT (read this carefully, extract every specific detail you can find):\n${j.website_text || ''}\n\nIMPORTANT: Your research_notes must include at least 3 specific facts from the website. Your email must reference at least 1 specific detail. Generic emails will be rejected.\n\nRespond with this exact JSON structure:\n{\n  \"business_name\": \"string\",\n  \"contact_name\": \"name found on website, or use the one provided above\",\n  \"contact_email\": \"email found on website or in EMAIL ADDRESSES FOUND section. Pick the best general or contact email, not noreply addresses. Empty string if none found\",\n  \"phone\": \"phone found on website, or use the one provided above\",\n  \"industry\": \"their specific niche\",\n  \"research_notes\": \"5-6 sentences: what they do specifically, who their customers are, what is unique about them, what marketing they are doing, what gaps exist, any specific details like team names or projects\",\n  \"subject_line\": \"string\",\n  \"email_body\": \"the full cold email with newlines\",\n  \"follow_up_1\": \"follow-up 1 body\",\n  \"follow_up_2\": \"follow-up 2 body\",\n  \"personalisation_hook\": \"the specific thing from their website you referenced in the email\"\n}`;\n\n  const payload = {\n    model: 'claude-sonnet-4-5',\n    max_tokens: 4000,\n    system: systemPrompt,\n    messages: [\n      { role: 'user', content: userContent }\n    ]\n  };\n\n  results.push({ json: { ...j, claude_body: JSON.stringify(payload) } });\n}\nreturn results;"
       },
       "id": "7cc9b10d-3ae6-4ffc-8536-294b1ee26488",
       "name": "Rate Limit Delay",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1504, 208]
+      "position": [
+        1504,
+        208
+      ]
     },
     {
       "parameters": {
@@ -131,7 +155,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"model\": \"claude-sonnet-4-6\",\n  \"max_tokens\": 4000,\n  \"system\": \"You are writing cold emails for Results Media, a digital marketing agency in Melbourne, Australia run by Dean Gravina. You are NOT an AI writing outreach. You are writing as Dean, a real person who genuinely studied this business before reaching out.\\n\\nYour emails must feel like they were written by a human who spent 20 minutes on their website. Not a template with merge fields swapped in.\\n\\nVOICE RULES:\\n- Australian English only (organise, colour, favour)\\n- Short sentences. Direct. Specific. No filler\\n- No corporate buzzwords: leverage, streamline, elevate, world-class, passionate, cutting-edge, innovative, solutions\\n- Use contractions (you're, we're, don't, can't, it's)\\n- Write like you're texting a business owner, not writing a brochure\\n- No em dashes. Use commas, colons, full stops instead\\n- Never use 'Dear'. Use Hey, Hi, or just their name\\n- Never start with 'I hope this email finds you well' or 'Just reaching out'\\n\\nRESEARCH INSTRUCTIONS (do this BEFORE writing anything):\\nExtract these details from the website content:\\n1. What exactly do they sell or do? Be hyper-specific\\n2. Who is their target customer? (B2B, B2C, local, national?)\\n3. Find SPECIFIC details: named team members, specific projects, client testimonials, product names, suburbs they serve, awards, blog post titles, service package names\\n4. What marketing are they doing? (blog activity, social links, Google Ads, landing pages, lead magnets)\\n5. What marketing gaps exist? (no blog? outdated content? no reviews visible? weak CTAs? no lead capture? thin service pages? no case studies?)\\n6. Find their phone number if visible\\n7. Find team member names if visible\\n8. Find email addresses. IMPORTANT: Check the EMAIL ADDRESSES FOUND ON WEBSITE section at the end of the content\\n\\nEMAIL FRAMEWORK (Understanding + Belief + Ask):\\n\\nThis framework is based on three principles: create a pattern interrupt so they actually read it, demonstrate credibility through accurate assumptions about their business, and make a single clear ask.\\n\\n1. SUBJECT LINE (pattern interrupt):\\n- Must create curiosity or reference something specific to them\\n- Should connect directly to the first line of the email\\n- Under 6 words. Personal. Not salesy\\n- Good: 'Noticed this on your site', '[Name], quick thought', 'Your [specific page] page'\\n- NEVER use: Quick question, Partnership opportunity, SEO for X, their business name, anything that screams mass email\\n\\n2. OPENER (1-2 lines, pattern interrupt continued):\\n- Reference something SPECIFIC from their website. Not 'I noticed you do great work'\\n- A specific project, a named team member, a particular service, a blog post, a client they mentioned, a detail from their About page\\n- This proves the email is 1-to-1, not automated. That is the entire point\\n\\n3. UNDERSTANDING (2-3 lines, the 'I understand' part):\\n- Make an intelligent ASSUMPTION about their business challenge. Not an observation\\n- Bad: 'I noticed your website could use some work' (observation, generic)\\n- Good: 'My guess is most of your leads come through word of mouth and referrals, and your website probably isn't pulling its weight compared to what you're spending on it' (assumption, specific, shows understanding)\\n- Frame it as 'My assumption is...' or 'I'd guess that...' or 'It looks like...'\\n- This is where you demonstrate you understand their world. Their context. What it's actually like to run their type of business\\n- Connect the assumption to a real marketing gap you found on their site\\n\\n4. BELIEF (1-2 lines, keep it SHORT):\\n- Brief statement of how Results Media solves this exact problem\\n- Do NOT over-explain. Leave room for curiosity\\n- Reference a specific result if possible: 'We helped a [similar business type] in [area] increase their leads by X' or 'Confident we can fix this based on what we've done for similar businesses'\\n- Keep it to one or two sentences max. Do not list services\\n\\n5. ASK (1 line, single and simple):\\n- One ask. Clear. Simple. Low commitment\\n- 'Happy to share what I'd do differently. Worth a 5-minute chat?'\\n- 'Let me know if you want me to send through what I'd change'\\n- Do NOT ask for a 30-minute call. Do NOT send a Calendly link. Do NOT ask multiple questions\\n- Be chill. Not desperate\\n\\n6. SIGN OFF:\\nCheers,\\nDean Gravina\\nResults Media\\n\\nCRITICAL RULES:\\n- Under 120 words for the email body. Every sentence earns its place\\n- The email should feel like it could only have been sent to THIS business. If you swapped the business name and it still made sense, it's too generic. Start over\\n- Never mention 'AI' or that research was done by a tool\\n- No bullet points or lists in the email body. Write in natural sentences\\n- The goal is a reply, not a sale. You're starting a conversation\\n\\nFollow-up 1 (sent Day 3): 2-3 sentences. Reference the first email. Add a NEW angle, a new specific observation, or a quick stat. Don't just say 'following up'. Provide new value or a new assumption\\nFollow-up 2 (sent Day 7): 1-2 sentences. Very human. Light. 'No stress if the timing's off. Thought it was worth a shot based on what I saw on your site'\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"Research this prospect's website and write a cold email using the Understanding + Belief framework.\\n\\nPROSPECT DETAILS:\\n- Business: {{ $json.company_name }}\\n- Website URL: {{ $json.Template }}\\n- Contact Name: {{ $json.first_name || 'Not provided - find on website if possible' }}\\n- Contact Email: {{ $json.contact_email || 'Not provided' }}\\n- Phone: {{ $json.phone || 'Not provided - find on website if possible' }}\\n- Industry: {{ $json.industry || 'Unknown - determine from website' }}\\n\\nWEBSITE CONTENT (read this carefully, extract every specific detail you can find):\\n{{ $json.website_text }}\\n\\nIMPORTANT: Your research_notes must include at least 3 specific facts from the website. Your email must reference at least 1 specific detail. Generic emails will be rejected.\\n\\nRespond with this exact JSON structure:\\n{\\n  \\\"business_name\\\": \\\"string\\\",\\n  \\\"contact_name\\\": \\\"name found on website, or use the one provided above\\\",\\n  \\\"contact_email\\\": \\\"email found on website or in EMAIL ADDRESSES FOUND section. Pick the best general or contact email, not noreply addresses. Empty string if none found\\\",\\n  \\\"phone\\\": \\\"phone found on website, or use the one provided above\\\",\\n  \\\"industry\\\": \\\"their specific niche\\\",\\n  \\\"research_notes\\\": \\\"5-6 sentences: what they do specifically, who their customers are, what is unique about them, what marketing they are doing, what gaps exist, any specific details like team names or projects\\\",\\n  \\\"subject_line\\\": \\\"string\\\",\\n  \\\"email_body\\\": \\\"the full cold email with newlines\\\",\\n  \\\"follow_up_1\\\": \\\"follow-up 1 body\\\",\\n  \\\"follow_up_2\\\": \\\"follow-up 2 body\\\",\\n  \\\"personalisation_hook\\\": \\\"the specific thing from their website you referenced in the email\\\"\\n}\"\n    }\n  ]\n}",
+        "jsonBody": "={{ $json.claude_body }}",
         "options": {
           "timeout": 120000
         }
@@ -140,7 +164,10 @@
       "name": "Claude - Research & Write Email",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1728, 208],
+      "position": [
+        1728,
+        208
+      ],
       "settings": {},
       "credentials": {
         "httpHeaderAuth": {
@@ -157,7 +184,10 @@
       "name": "Parse Claude Response",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1952, 208]
+      "position": [
+        1952,
+        208
+      ]
     },
     {
       "parameters": {
@@ -175,7 +205,9 @@
         "columns": {
           "mappingMode": "autoMapInputData",
           "value": {},
-          "matchingColumns": ["Template"],
+          "matchingColumns": [
+            "Template"
+          ],
           "schema": [
             {
               "id": "Website",
@@ -319,7 +351,10 @@
       "name": "Update Sheet with Emails",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
-      "position": [2160, 208],
+      "position": [
+        2160,
+        208
+      ],
       "alwaysOutputData": true,
       "credentials": {
         "googleSheetsOAuth2Api": {
