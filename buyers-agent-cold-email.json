@@ -251,7 +251,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const results = [];\nfor (const item of $input.all()) {\n  if (item.json.row_number <= 2) continue;\n  const biz = item.json[\"Turf Template\"];\n  if (!biz || String(biz).trim() === \"\") continue;\n  const url = item.json.Template;\n  if (!url || String(url).trim() === \"\") continue;\n  if (!url.includes(\".\")) continue;\n  // col_7 maps to column F (email_body)\n  const eb = item.json.col_7;\n  if (!eb || String(eb).trim() === \"\") {\n    results.push(item);\n  }\n}\nreturn results;"
+        "jsCode": "const results = [];\nfor (const item of $input.all()) {\n  const biz = item.json[\"Turf Template\"];\n  if (!biz || String(biz).trim() === \"\") continue;\n  const url = item.json.Template;\n  if (!url || String(url).trim() === \"\") continue;\n  if (!url.includes(\".\")) continue;\n  // col_7 maps to column G (email_body) - skip rows already drafted\n  const eb = item.json.col_7;\n  if (!eb || String(eb).trim() === \"\") {\n    results.push(item);\n  }\n}\nreturn results;"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -349,6 +349,7 @@
         []
       ]
     },
+
     "Scrape Website": {
       "main": [
         [
